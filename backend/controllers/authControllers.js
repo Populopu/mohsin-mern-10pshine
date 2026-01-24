@@ -1,44 +1,105 @@
-import User from "../models/user.js";
+import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import {isValidEmail, isStrongPassword} from "../utils/validators.js";
 
 export const signup = async (req, res) => {
-  const { name, email, password } = req.body;
+  try {
+    const {name, email, password } = req.body;
 
-  const userExists = await User.findOne({ email });
-  if (userExists) {
-    return res.status(400).json({ message: "User already exists" });
+    if (!name||!email || !password) {
+      return res.status(400).json({
+        message: "All fields are required"
+      });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({
+        message: "Invalid email format"
+      });
+    }
+
+    if (!isStrongPassword(password)) {
+      return res.status(400).json({
+        message:
+          "Password must be 8+ chars and include uppercase, lowercase & number"
+      });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        message: "User already exists"
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await User.create({
+      name,
+      email,
+      password: hashedPassword
+    });
+
+    res.status(201).json({
+      message: "Account created successfully"
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Server error"
+    });
   }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  await User.create({
-    name,
-    email,
-    password: hashedPassword
-  });
-
-  res.status(201).json({ message: "Signup successful" });
 };
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(400).json({ message: "User not found" });
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "All fields are required"
+      });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({
+        message: "Invalid email format"
+      });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({
+        message: "Invalid email or password"
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Invalid email or password"
+      });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.status(200).json({
+      token,
+      user: {
+        id: user._id,
+        email: user.email
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Server error"
+    });
   }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    return res.status(400).json({ message: "Invalid password" });
-  }
-
-  const token = jwt.sign(
-    { userId: user._id },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
-  );
-
-  res.json({ token });
 };
