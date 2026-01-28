@@ -1,0 +1,51 @@
+.dashboard {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.note-form {
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.note-form input,
+.note-form textarea {
+  padding: 10px;
+  font-size: 16px;
+}
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.note-card {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.note-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  cursor: pointer;
+  padding: 8px 12px;
+}
+
+button.danger {
+  background: #ff4d4d;
+  color: white;
+}
