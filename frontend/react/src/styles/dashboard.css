@@ -1,51 +1,107 @@
 .dashboard {
-  max-width: 900px;
+  max-width: 1100px;
   margin: auto;
   padding: 20px;
 }
 
-header {
+.dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
 }
 
-.note-form {
-  margin: 20px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.logout-btn {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.note-form input,
-.note-form textarea {
-  padding: 10px;
-  font-size: 16px;
+.add-note-btn {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.status-text {
+  text-align: center;
+  color: #666;
+  margin-top: 30px;
 }
 
 .notes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
 }
 
-.note-card {
-  background: #f9f9f9;
-  padding: 15px;
+.search-input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 20px;
   border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 15px;
 }
 
-.note-actions {
+.search-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+}
+
+.tag-filter {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-bottom: 5px;
+}
+
+.filter-bar {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0;
 }
 
-button {
+.filter-btn {
+  padding: 6px 14px;
+  border-radius: 500px;
+  border: 1px solid #ddd;
+  background: white;
   cursor: pointer;
-  padding: 8px 12px;
+  font-size: 14px;
 }
 
-button.danger {
-  background: #ff4d4d;
+.filter-btn.active {
+  background: #4f46e5;
+  color: white;
+  border-color: #4f46e5;
+}
+
+.tag-filter {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag-chip {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4f46e5;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.tag-chip.active {
+  background: #4f46e5;
   color: white;
 }
