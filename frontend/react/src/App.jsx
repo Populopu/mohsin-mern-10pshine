@@ -9,6 +9,8 @@ import Landing from "./pages/landingPage"
 
 import ProtectedRoute from "./components/protectedRoutes";
 import PublicRoute from "./components/publicRoutes";
+import ForgotPassword from "./pages/forgotPassword";
+import ResetPassword from "./pages/resetPassword";
 
 function App() {
   return (
@@ -43,6 +45,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
     </BrowserRouter>
   );
