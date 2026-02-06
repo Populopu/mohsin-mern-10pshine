@@ -64,3 +64,18 @@ button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.password-field {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  cursor: pointer;
+  color: #4f46e5;
+  user-select: none;
+}

@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
+import logger from "../utils/logger.js";
 import {isValidEmail, isStrongPassword} from "../utils/validators.js";
 
 export const signup = async (req, res) => {
@@ -48,7 +49,7 @@ export const signup = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    logger.error(error, "Failed to signup");
     res.status(500).json({
       message: "Server error"
     });
@@ -70,6 +71,10 @@ export const login = async (req, res) => {
         message: "Invalid email format"
       });
     }
+    logger.info(
+      { email: req.body.email },
+      "Login attempt"
+    );
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -84,6 +89,10 @@ export const login = async (req, res) => {
         message: "Invalid email or password"
       });
     }
+    logger.warn(
+      { email: req.body.email },
+      "Invalid login credentials"
+    );
 
     const token = jwt.sign(
       { userId: user._id },
@@ -98,8 +107,13 @@ export const login = async (req, res) => {
         email: user.email
       }
     });
+    logger.info(
+      { userId: user._id },
+      "User logged in successfully"
+    );
 
   } catch (error) {
+    logger.error(error, "Failed to login");
     res.status(500).json({
       message: "Server error"
     });
@@ -116,26 +130,18 @@ export const forgotPassword = async (req, res) => {
     });
   }
 
-  // 1️⃣ Generate raw token
   const resetToken = crypto.randomBytes(32).toString("hex");
 
-  // 2️⃣ Hash token before saving
   const hashedToken = crypto
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
 
-  // 3️⃣ Save to DB
   user.resetPasswordToken = hashedToken;
-  user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 mins
+  user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; 
   await user.save();
 
-  // 4️⃣ Create reset URL
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-
-  // 5️⃣ Send email
-  console.log("EMAIL USER:", process.env.EMAIL_USER);
-console.log("EMAIL PASS EXISTS:", !!process.env.EMAIL_PASS);
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
