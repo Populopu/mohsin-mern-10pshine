@@ -1,4 +1,5 @@
 import Note from "../models/notes.js";
+import logger from "../utils/logger.js";
 
 export const getNotes = async (req, res) => {
   try {
@@ -30,9 +31,17 @@ export const createNote = async (req, res) => {
     });
 
     res.status(201).json(note);
-  } catch {
-    res.status(500).json({ message: "Failed to create note" });
-  }
+    logger.info(
+  {
+    userId: req.user.id,
+    title: req.body.title
+  },
+  "Note created"
+  );
+  } catch (error) {
+  logger.error(error, "Failed to create note");
+  res.status(500).json({ message: "Failed to create note" });
+}
 };
 
 export const updateNote = async (req, res) => {
@@ -56,7 +65,15 @@ export const updateNote = async (req, res) => {
     await note.save();
 
     res.status(200).json(note);
-  } catch {
+    logger.info(
+  {
+    userId: req.user.id,
+    noteId: note._id
+  },
+  "Note updated"
+  );
+  } catch (error){
+    logger.error(error, "Failed to update note");
     res.status(500).json({ message: "Failed to update note" });
   }
 };
@@ -73,7 +90,15 @@ export const deleteNote = async (req, res) => {
     }
 
     res.status(200).json({ message: "Note deleted" });
-  } catch {
+    logger.warn(
+  {
+    userId: req.user.id,
+    noteId: req.params.id
+  },
+  "Note deleted"
+  );
+  } catch (error){
+    logger.error(error, "Failed to delete note");
     res.status(500).json({ message: "Failed to delete note" });
   }
 };
