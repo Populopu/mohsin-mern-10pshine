@@ -11,8 +11,18 @@ import ProtectedRoute from "./components/protectedRoutes";
 import PublicRoute from "./components/publicRoutes";
 import ForgotPassword from "./pages/forgotPassword";
 import ResetPassword from "./pages/resetPassword";
+import { useState, useEffect} from "react";
 
 function App() {
+  const [theme, setTheme] = useState(
+  localStorage.getItem("theme") || "light"
+);
+
+useEffect(() => {
+  document.body.className = theme;
+  localStorage.setItem("theme", theme);
+}, [theme]);
+
   return (
     <BrowserRouter>
       <ToastContainer />

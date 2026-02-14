@@ -64,7 +64,6 @@ const ResetPassword = () => {
       <form className="auth-card" onSubmit={handleSubmit}>
         <h2>Reset Password</h2>
 
-        {/* PASSWORD */}
         <div className="password-field">
           <input
             type={showPassword ? "text" : "password"}
@@ -80,7 +79,6 @@ const ResetPassword = () => {
           </span>
         </div>
 
-        {/* CONFIRM PASSWORD */}
         <div className="password-field">
           <input
             type={showPassword ? "text" : "password"}

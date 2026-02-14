@@ -14,7 +14,7 @@ const Landing = () => {
   return (
     <div className="landing">
       <nav className="landing-nav">
-        <h2>Notefy</h2>
+        <h2>Notify</h2>
         <div>
           <Link to="/login" className="btn-outline">Login</Link>
           <Link to="/signup" className="btn">Signup</Link>

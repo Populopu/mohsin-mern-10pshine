@@ -37,7 +37,7 @@ const Login = () => {
       }
 
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.token))
+      localStorage.setItem("user", JSON.stringify(data.user))
       toast.success("Login successful");
       navigate("/dashboard");
 
@@ -77,7 +77,7 @@ const Login = () => {
         </p>
       </form>
       
-      <Link to="/signup">Create an account</Link>
+      <Link to="/signup"> Not registered? Create an account</Link>
     </div>
   );
 };

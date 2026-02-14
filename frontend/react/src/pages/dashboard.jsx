@@ -5,6 +5,7 @@ import { getAuthHeaders, getUser } from "../utils/auth";
 import NoteCard from "../components/notesCard";
 import NoteForm from "../components/notesForm";
 import ConfirmModal from "../components/confirmModal";
+import Profile from "../components/profile";
 import "../styles/dashboard.css";
 
 const INACTIVITY_LIMIT = 15 * 60 * 1000; 
@@ -16,6 +17,9 @@ const Dashboard = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [theme, setTheme] = useState(
+    localStorage.getItem("theme") || "light"
+  );
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all"); 
@@ -48,6 +52,11 @@ const Dashboard = () => {
   useEffect(() => {
     fetchNotes();
   }, []);
+
+  useEffect(() => {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+}, [theme]);
 
   useEffect(() => {
     let timeout;
@@ -176,103 +185,131 @@ const Dashboard = () => {
   new Set(notes.flatMap(note => note.tags || []))
 );
 
-  return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <h2>Welcome To Dashboard {user?.email} 👋</h2>
-        <button className="logout-btn" onClick={logout}>Logout</button>
-      </header>
+ return (
+  <>
+      <div className="dashboard">
+        <header className="dashboard-header">
+          <h2>My Notes</h2>
 
-      <button className="add-note-btn" onClick={() => {
-        setEditingNote(null);
-        setShowForm(true);
-      }}>
-        + Add New Note
-      </button>
+          <div className="header-actions">
 
-      {showForm && (
-        <NoteForm
-          onSubmit={handleAddOrUpdate}
-          editingNote={editingNote}
-          onCancel={() => {
-            setEditingNote(null);
-            setShowForm(false);
-          }}
-        />
-      )}
+            <button
+              className="theme-toggle-btn"
+              onClick={() =>
+                setTheme(theme === "light" ? "dark" : "light")
+              }
+              title="Toggle theme"
+            >
+              {theme === "light" ? "🌙" : "☀️"}
+            </button>
 
-      <input
-        className="search-input"
-        placeholder="Search notes..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+            <Profile />
 
-      <div className="filter-bar">
-        <button
-          className={filter === "all" ? "filter-btn active" : "filter-btn"}
-          onClick={() => {
-            setFilter("all");
-            setSelectedTag("");
-          }}
-        >
-          All
-        </button>
-
-        <button
-          className={filter === "pinned" ? "filter-btn active" : "filter-btn"}
-          onClick={() => {
-            setFilter("pinned");
-            setSelectedTag("");
-          }}
-        >
-          📌 Pinned
-        </button>
-
-        {allTags.length > 0 && (
-          <div className="tag-filter">
-            {allTags.map(tag => (
-              <button
-                key={tag}
-                className={`tag-chip ${selectedTag === tag ? "active" : ""}`}
-                onClick={() => {
-                  setSelectedTag(tag);
-                  setFilter("all");
-                }}
-              >
-                {tag}
-              </button>
-            ))}
+            <button className="logout-btn" onClick={logout}>
+              Logout
+            </button>
           </div>
+        </header>
+
+        <button
+          disabled={showForm}
+          className="add-note-btn"
+          onClick={() => {
+            setEditingNote(null);
+            setShowForm(true);
+          }}
+        >
+          + Add New Note
+        </button>
+
+        {showForm ? (
+          <NoteForm
+            onSubmit={handleAddOrUpdate}
+            editingNote={editingNote}
+            onCancel={() => {
+              setEditingNote(null);
+              setShowForm(false);
+            }}
+          />
+        ):(
+        <>
+        <input
+          className="search-input"
+          placeholder="Search notes..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <div className="filter-bar">
+          <button
+            className={filter === "all" ? "filter-btn active" : "filter-btn"}
+            onClick={() => {
+              setFilter("all");
+              setSelectedTag("");
+            }}
+          >
+            All
+          </button>
+
+          <button
+            className={filter === "pinned" ? "filter-btn active" : "filter-btn"}
+            onClick={() => {
+              setFilter("pinned");
+              setSelectedTag("");
+            }}
+          >
+            📌 Pinned
+          </button>
+
+          {allTags.length > 0 && (
+            <div className="tag-filter">
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  className={`tag-chip ${
+                    selectedTag === tag ? "active" : ""
+                  }`}
+                  onClick={() => {
+                    setSelectedTag(tag);
+                    setFilter("all");
+                  }}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {loading && <p className="status-text">Loading notes...</p>}
+
+        <div className="notes-grid">
+          {filteredNotes.map((note) => (
+            <NoteCard
+              key={note._id}
+              note={note}
+              onDelete={requestDelete}
+              onEdit={() => {
+                setEditingNote(note);
+                setShowForm(true);
+              }}
+              onTogglePin={togglePin}
+            />
+          ))}
+        </div>
+        </>
+        )}
+      
+        {showConfirm && (
+          <ConfirmModal
+            title="Delete Note?"
+            message="This action cannot be undone."
+            onConfirm={confirmDelete}
+            onCancel={() => setShowConfirm(false)}
+          />
         )}
       </div>
-
-      {loading && <p className="status-text">Loading notes...</p>}
-
-      <div className="notes-grid">
-        {filteredNotes.map(note => (
-          <NoteCard
-            key={note._id}
-            note={note}
-            onDelete={requestDelete}
-            onEdit={() => {
-              setEditingNote(note);
-              setShowForm(true);
-            }}
-            onTogglePin={togglePin}
-          />
-        ))}
-      </div>
-
-      {showConfirm && (
-        <ConfirmModal
-          title="Delete Note?"
-          message="This action cannot be undone."
-          onConfirm={confirmDelete}
-          onCancel={() => setShowConfirm(false)}
-        />
-      )}
-    </div>
+    </>
   );
 };
 
