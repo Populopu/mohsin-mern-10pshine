@@ -3,11 +3,13 @@ name: SonarCloud Analysis
 on:
   push:
     branches:
+      - "**"
       - develop
       - feature-sonarqube
   pull_request:
     branches:
       - develop
+      - main
 
 jobs:
   sonarcloud:
