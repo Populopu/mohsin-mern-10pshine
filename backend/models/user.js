@@ -5,7 +5,11 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   resetPasswordToken: String,
-  resetPasswordExpires: Date
+  resetPasswordExpires: Date,
+  profilePic: {
+  type: String,
+  default: "default.png"
+}
 });
 
 export default mongoose.model("User", userSchema);

@@ -8,6 +8,7 @@ import logger from "./utils/logger.js";
 
 import authRoutes from "./routes/authRoutes.js";
 import noteRoutes from "./routes/notesRoutes.js";
+import userRoutes from "./routes/userRoutes.js"
 import errorMiddleware from "./middlewares/errorMiddleware.js"
 
 dotenv.config();
@@ -35,9 +36,11 @@ app.use(
     }
   })
 );
+app.use("/uploads", express.static("uploads"));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/notes", noteRoutes);
+app.use("/api/user", userRoutes);
 
 app.get("/", (req, res) => {
   res.send("API Running");
@@ -46,6 +49,11 @@ app.get("/", (req, res) => {
 app.use(errorMiddleware)
 
 const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+export default app;
