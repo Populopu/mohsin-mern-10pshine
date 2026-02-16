@@ -17,5 +17,6 @@ test("loads profile data", async () => {
 
   fireEvent.click(screen.getByText(/👤/));
 
-  await waitFor(() => expect(screen.getByDisplayValue("Mohsin")).toBeInTheDocument());
+  // the component displays the user's email rather than an editable name
+  await waitFor(() => expect(screen.getByText("test@mail.com")).toBeInTheDocument());
 });

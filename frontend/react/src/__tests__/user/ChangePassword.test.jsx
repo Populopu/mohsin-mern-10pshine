@@ -23,11 +23,14 @@ test("changes password", async () => {
     target: { value: "123456" }
   });
 
-  fireEvent.change(screen.getByPlaceholderText(/new password/i), {
+  // target the exact placeholder for the new password field to avoid
+  // matching the "Confirm new password" input
+  fireEvent.change(screen.getByPlaceholderText("New password"), {
     target: { value: "abcdef" }
   });
 
-  fireEvent.click(screen.getByText(/change password/i));
+  // click the submit button (there's also an H3 with the same text)
+  fireEvent.click(screen.getByRole("button", { name: /change password/i }));
 
   await waitFor(() => expect(global.fetch).toHaveBeenCalled());
 });
