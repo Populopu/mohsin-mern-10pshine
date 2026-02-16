@@ -14,7 +14,7 @@ const Landing = () => {
   return (
     <div className="landing">
       <nav className="landing-nav">
-        <h2>NotesApp</h2>
+        <h2>Notify</h2>
         <div>
           <Link to="/login" className="btn-outline">Login</Link>
           <Link to="/signup" className="btn">Signup</Link>
@@ -24,7 +24,7 @@ const Landing = () => {
       <div className="hero">
         <h1>Organize Your Thoughts,<br />One Note at a Time</h1>
         <p>
-          A simple and secure notes app built with the MERN stack.
+          A simple and secure notes app.
           Access your notes anywhere, anytime.
         </p>
 
