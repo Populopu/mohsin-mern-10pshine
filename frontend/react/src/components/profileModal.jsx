@@ -12,13 +12,11 @@ const ProfileModal = ({
   const [showPass, setShowPass] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const fileInputRef = useRef(null); 
-  const formRef = useRef(null); 
+  const fileInputRef = useRef(null);
+  const formRef = useRef(null);
 
   const defaultAvatar =
     "https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff";
-
-  console.log("ProfileModal rendered");
 
   if (loading) {
     return (
@@ -32,33 +30,23 @@ const ProfileModal = ({
 
   if (!user) return null;
 
-  const handleAvatarClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+  const handleAvatarButtonClick = () => {
+    fileInputRef.current?.click();
   };
 
   const handleFileChange = async (e) => {
-    console.log("handleFileChange triggered"); 
-    if (!onAvatarUpload) {
-      console.log("onAvatarUpload prop is missing");
-      return;
-    }
-    const file = e.target.files[0];
-    if (!file) {
-      console.log("No file selected");
-      return;
-    }
+    if (!onAvatarUpload) return;
 
-    console.log("File selected:", file.name);
+    const file = e.target.files[0];
+    if (!file) return;
 
     try {
       setSubmitting(true);
       await onAvatarUpload(file);
-      console.log("Avatar upload completed");
+      toast.success("Avatar updated successfully");
     } catch (err) {
-      console.error("Avatar upload failed", err);
-      toast.error("Avatar upload failed: " + err.message);
+      console.error(err);
+      toast.error("Avatar upload failed");
     } finally {
       setSubmitting(false);
     }
@@ -66,33 +54,28 @@ const ProfileModal = ({
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    console.log("handlePasswordSubmit triggered"); 
 
-    if (!onChangePassword) {
-      console.log("onChangePassword prop is missing");
-      return;
-    }
+    if (!onChangePassword) return;
 
     const form = formRef.current;
-    if (!form) {
-      console.log("Form ref not found");
-      return;
-    }
 
-    const currentPassword = form.elements.current?.value.trim() || "";
-    const newPassword = form.elements.new?.value.trim() || "";
-    const confirmPassword = form.elements.confirm?.value.trim() || "";
-
-    console.log("Form values:", { currentPassword, newPassword, confirmPassword });
+    const currentPassword =
+      form.elements.current?.value.trim() || "";
+    const newPassword =
+      form.elements.new?.value.trim() || "";
+    const confirmPassword =
+      form.elements.confirm?.value.trim() || "";
 
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast.error("Please fill all fields");
       return;
     }
+
     if (newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters");
+      toast.error("Password must be at least 6 characters");
       return;
     }
+
     if (newPassword !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -104,8 +87,8 @@ const ProfileModal = ({
       form.reset();
       toast.success("Password changed successfully");
     } catch (err) {
-      console.error("Password change error:", err);
-      toast.error("Failed to change password");
+      console.error(err);
+      toast.error("Password update failed");
     } finally {
       setSubmitting(false);
     }
@@ -124,17 +107,24 @@ const ProfileModal = ({
               ? `http://localhost:5000/uploads/${user.profilePic}?t=${Date.now()}`
               : defaultAvatar
           }
-          alt="avatar"
+          alt="User avatar"
           className="avatar"
-          style={{ cursor: "pointer" }}
-          onClick={handleAvatarClick} 
         />
+
+        <button
+          type="button"
+          className="upload-btn"
+          onClick={handleAvatarButtonClick}
+          disabled={submitting}
+        >
+          {submitting ? "Uploading..." : "Change Avatar"}
+        </button>
 
         <input
           ref={fileInputRef}
           type="file"
           accept="image/*"
-          style={{ display: "none" }}
+          hidden
           onChange={handleFileChange}
         />
 
@@ -142,7 +132,11 @@ const ProfileModal = ({
           <strong>Email:</strong> {user.email}
         </p>
 
-        <form className="password-form" onSubmit={handlePasswordSubmit} ref={formRef}>
+        <form
+          className="password-form"
+          onSubmit={handlePasswordSubmit}
+          ref={formRef}
+        >
           <h3>Change Password</h3>
 
           <input

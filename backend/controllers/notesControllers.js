@@ -1,5 +1,21 @@
+import mongoose from "mongoose";
 import Note from "../models/notes.js";
 import logger from "../utils/logger.js";
+
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+
+const filterUpdates = (body) => {
+  const allowedFields = ["title", "content", "tags", "pinned"];
+  const updates = {};
+
+  allowedFields.forEach((field) => {
+    if (body[field] !== undefined) {
+      updates[field] = body[field];
+    }
+  });
+
+  return updates;
+};
 
 export const getNotes = async (req, res) => {
   try {
@@ -24,30 +40,35 @@ export const createNote = async (req, res) => {
   try {
     const note = await Note.create({
       user: req.user.id,
-      title,
-      content,
-      tags,
-      pinned
+      title: String(title),
+      content: String(content),
+      tags: Array.isArray(tags) ? tags : [],
+      pinned: Boolean(pinned)
     });
 
     res.status(201).json(note);
+
     logger.info(
-  {
-    userId: req.user.id,
-    title: req.body.title
-  },
-  "Note created"
-  );
+      { userId: req.user.id, title },
+      "Note created"
+    );
+
   } catch (error) {
-  logger.error(error, "Failed to create note");
-  res.status(500).json({ message: "Failed to create note" });
-}
+    logger.error(error, "Failed to create note");
+    res.status(500).json({ message: "Failed to create note" });
+  }
 };
 
 export const updateNote = async (req, res) => {
   try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ message: "Invalid note ID" });
+    }
+
     const note = await Note.findOne({
-      _id: req.params.id,
+      _id: id,
       user: req.user.id
     });
 
@@ -55,24 +76,20 @@ export const updateNote = async (req, res) => {
       return res.status(404).json({ message: "Note not found" });
     }
 
-    const { title, content, tags, pinned } = req.body;
+    const updates = filterUpdates(req.body);
 
-    if (title !== undefined) note.title = title;
-    if (content !== undefined) note.content = content;
-    if (tags !== undefined) note.tags = tags;
-    if (pinned !== undefined) note.pinned = pinned;
+    Object.assign(note, updates);
 
     await note.save();
 
     res.status(200).json(note);
+
     logger.info(
-  {
-    userId: req.user.id,
-    noteId: note._id
-  },
-  "Note updated"
-  );
-  } catch (error){
+      { userId: req.user.id, noteId: note._id },
+      "Note updated"
+    );
+
+  } catch (error) {
     logger.error(error, "Failed to update note");
     res.status(500).json({ message: "Failed to update note" });
   }
@@ -80,8 +97,14 @@ export const updateNote = async (req, res) => {
 
 export const deleteNote = async (req, res) => {
   try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ message: "Invalid note ID" });
+    }
+
     const note = await Note.findOneAndDelete({
-      _id: req.params.id,
+      _id: id,
       user: req.user.id
     });
 
@@ -90,14 +113,13 @@ export const deleteNote = async (req, res) => {
     }
 
     res.status(200).json({ message: "Note deleted" });
+
     logger.warn(
-  {
-    userId: req.user.id,
-    noteId: req.params.id
-  },
-  "Note deleted"
-  );
-  } catch (error){
+      { userId: req.user.id, noteId: id },
+      "Note deleted"
+    );
+
+  } catch (error) {
     logger.error(error, "Failed to delete note");
     res.status(500).json({ message: "Failed to delete note" });
   }
@@ -105,8 +127,14 @@ export const deleteNote = async (req, res) => {
 
 export const togglePin = async (req, res) => {
   try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ message: "Invalid note ID" });
+    }
+
     const note = await Note.findOne({
-      _id: req.params.id,
+      _id: id,
       user: req.user.id
     });
 
